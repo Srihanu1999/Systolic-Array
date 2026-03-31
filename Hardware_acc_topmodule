@@ -1,0 +1,43 @@
+module top_matrix(
+	input clk,
+	input rst_n,
+	input start,
+	input select,
+	
+	input[127:0] A_in, //Ain: flattened array of A
+	input[127:0] B_in, //Bin: flattened array of B
+	
+	output[319:0] C_out,
+	output done
+};
+
+wire[319:0] C_seq;
+wire[319:0] C_par;
+
+wire done_seq;
+wire done_par;
+
+mat_seq seq{
+.clk(clk),
+.rst_n(rst_n),
+.start(start),
+.A_flat(A_in),
+.B_flat(B_in),
+.C_flat(C_seq),
+.done(done_seq)
+};
+
+mat_par par{ 
+.clk(clk),
+.rst_n(rst_n),
+.en(start),
+.A_flat(A_in),
+.B_flat(B_in),
+.C_flat(C_par),
+.done(done_par)
+};
+
+assign C_out = (select) ? C_par : C_seq;
+assign done= (select) ? done_par : done_seq;
+
+endmodule
